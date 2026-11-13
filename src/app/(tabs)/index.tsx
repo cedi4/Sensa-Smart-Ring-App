@@ -1,4 +1,4 @@
-import RecentEvent from '@/components/EventList';
+import ControlsCard from '@/components/ControlsCard';
 import HomeHeader from '@/components/HomeHeader';
 import StatusGrid from '@/components/StatusGrid';
 import TodayActivity from '@/components/TodayList';
@@ -12,10 +12,10 @@ export default function HomeScreen() {
       <Text style={globalStyles.title}>Good Evening, Cedric</Text>
      {/*Older date header component before step 18:
       <Text style={styles.date}>Monday, March 16</Text> */}
-      <HomeHeader/>
+      <HomeHeader />
       <StatusGrid />
       <TodayActivity />
-      <RecentEvent />
+      <ControlsCard />
     </ScrollView>
   );
 }

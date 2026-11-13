@@ -1,25 +1,34 @@
 import { colors } from '@/styles/global';
+import { Link } from 'expo-router';
 import { Image, StyleSheet, Text, View } from 'react-native';
 import RingStatus from './RingStatus';
 
   export default function StatusGrid() {
     const battery = 89;
+    const connected = true; // will come from BLE later
+    const statusColor = connected ? colors.success : colors.alert; // use specific color depending on connection status
     return (
       <View style={styles.box}>
         <Image source={require('../../assets/images/ringCAD.png')} style={styles.ringImage} />
 
       <View style={styles.info}>
         <Text style={styles.title}>Smart Ring</Text>
-        <RingStatus label='Connection' value='Disconnected' color='#09260d' last />
-        <RingStatus label='Battery' value={`${battery}%`} color='#196e24' last />
+        <RingStatus label='Connection' value={connected ? 'Connected' : 'Disconnected'} color={statusColor} last />
+        <RingStatus label='Battery' value={`${battery}%`} color={colors.success} last />
         {/* battery bar */}
           <View style={styles.barTrack}>
             <View style={[styles.barFill, { width: `${battery}%` }]} />
           </View>
+        <View>
+        {/* Connect button, opens Device Connection */}
+        <Link href='/deviceConnectionScreen' style={styles.connectButton}>
+            Connect
+          </Link>
         </View>
+       </View>
       </View>
     );
-  } 
+  }
 
   const styles = StyleSheet.create({
     box: {
@@ -57,6 +66,19 @@ import RingStatus from './RingStatus';
     barFill: { 
       height: 8,
       borderRadius: 4,
-      backgroundColor: '#6bcb77',
+      backgroundColor: colors.success,
+    },
+    connectButton: { 
+      backgroundColor: colors.primary,
+      color: colors.background,
+      fontSize: 12,
+      fontWeight: 'bold',
+      textAlign: 'center',
+      width: 64,
+      height: 64,
+      lineHeight: 64,
+      borderRadius: 32,
+      marginRight: 12,
+      overflow: 'hidden',
     },
   });
