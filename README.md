@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Welcome to your Expo app 👋
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
@@ -54,3 +55,7 @@ Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+=======
+# Sensa-Smart-Ring-App
+A mobile application to accompany a smart ring capable of tracking and responding to BFRBs.  This app directly uses Brad Traversy's tutorial on using React Native.
+>>>>>>> 0104276b5a9d0df2f905de92ccb90a464eab5af6
