@@ -15,18 +15,23 @@ import RingStatus from './RingStatus';
       <View style={styles.info}>
         <Text style={styles.title}>Smart Ring</Text>
         <RingStatus value={connected ? 'Connected' : 'Disconnected'} color={statusColor} connectDot last /> 
-        <RingStatus label='Battery' value={`${battery}%`} color={batteryColor} last /> 
+        <RingStatus label='Battery' value='' color={batteryColor} connectDot={false}   last /> 
+
         {/* battery bar */}
+        <View style={styles.barRow}>
+          <Text style={[styles.barPercentage, { color: batteryColor }]}>{battery}%</Text>
           <View style={styles.barTrack}>
             <View style={[styles.barFill, { width: `${battery}%`, backgroundColor: batteryColor }]} />
           </View>
+        </View>
+
         <View>
-        {/* Connect button, opens Device Connection */}
+        </View>
+      </View>
+         {/* Connect button, opens Device Connection */}
         <Link href='/deviceConnectionScreen' style={styles.connectButton}>
             Connect
           </Link>
-        </View>
-       </View>
       </View>
     );
   }
@@ -56,13 +61,18 @@ import RingStatus from './RingStatus';
       marginLeft: 20, // lines the title up with the row text (4 stripe + 16 padding)
     },
     barTrack: { 
-      height: 8,
-      borderRadius: 4,
-      backgroundColor: colors.background,
+      flex: 1,
+    height: 10,
+    borderRadius: 4,
+    backgroundColor: colors.background,
+    overflow: 'hidden',
+    },
+    barRow: { 
+      flexDirection: 'row',
+      alignItems: 'center',
       marginLeft: 20,
-      marginRight: 16,
+      marginRight: -40,
       marginBottom: 16,
-      overflow: 'hidden',
     },
     barFill: { 
       height: '100%',
@@ -80,5 +90,11 @@ import RingStatus from './RingStatus';
       borderRadius: 32,
       marginRight: 12,
       overflow: 'hidden',
+    },
+    barPercentage: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    width: 40,
+    marginRight: 8,
     },
   });

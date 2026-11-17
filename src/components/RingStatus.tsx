@@ -18,9 +18,9 @@ export default function RingStatus({
 }: RingStatusProps) {
   return (
     <View style={[styles.row, !last && styles.divider]}>  
-      {connectDot && <View style={[styles.dot, { backgroundColor: color }]} />}
       {label && <Text style={styles.label}>{label}</Text>} 
       <Text style={[styles.value, { color }]}>{ value}</Text>
+      {connectDot && <View style={[styles.dot, { backgroundColor: color }]} />}
     </View>
   );
 }
