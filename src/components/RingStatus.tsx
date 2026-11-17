@@ -17,10 +17,10 @@ export default function RingStatus({
   connectDot = true, 
 }: RingStatusProps) {
   return (
-    <View style={[styles.row, { borderLeftColor: color }, !last && styles.divider]}>  
+    <View style={[styles.row, !last && styles.divider]}>  
       {connectDot && <View style={[styles.dot, { backgroundColor: color }]} />}
       {label && <Text style={styles.label}>{label}</Text>} 
-      <Text style={[styles.value, { color }]}>{value}</Text>
+      <Text style={[styles.value, { color }]}>{ value}</Text>
     </View>
   );
 }
@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 16,
     paddingHorizontal: 16, // moved here from the box so the stripe sits at the edge
-    borderLeftWidth: 4,
+    //borderLeftWidth: 4,
   },
   divider: {
     borderBottomWidth: 1,

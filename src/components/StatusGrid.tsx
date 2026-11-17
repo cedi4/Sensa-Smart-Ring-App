@@ -56,7 +56,6 @@ import RingStatus from './RingStatus';
       marginLeft: 20, // lines the title up with the row text (4 stripe + 16 padding)
     },
     barTrack: { 
-      width: '100%',
       height: 8,
       borderRadius: 4,
       backgroundColor: colors.background,
