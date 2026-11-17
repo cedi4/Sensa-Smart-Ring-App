@@ -4,20 +4,21 @@ import { Image, StyleSheet, Text, View } from 'react-native';
 import RingStatus from './RingStatus';
 
   export default function StatusGrid() {
-    const battery = 89;
-    const connected = true; // will come from BLE later
+    const battery = 88;
+    const connected = false; // will come from BLE later
     const statusColor = connected ? colors.success : colors.alert; // use specific color depending on connection status
+    const batteryColor = battery <= 10 ? colors.batteryRed : battery <= 20 ? colors.batteryYellow : colors.batteryGreen;
     return (
-      <View style={styles.box}>
+      <View style={styles.box}> 
         <Image source={require('../../assets/images/ringCAD.png')} style={styles.ringImage} />
 
       <View style={styles.info}>
         <Text style={styles.title}>Smart Ring</Text>
-        <RingStatus label='Connection' value={connected ? 'Connected' : 'Disconnected'} color={statusColor} last />
-        <RingStatus label='Battery' value={`${battery}%`} color={colors.success} last />
+        <RingStatus value={connected ? 'Connected' : 'Disconnected'} color={statusColor} connectDot last /> 
+        <RingStatus label='Battery' value={`${battery}%`} color={batteryColor} last /> 
         {/* battery bar */}
           <View style={styles.barTrack}>
-            <View style={[styles.barFill, { width: `${battery}%` }]} />
+            <View style={[styles.barFill, { width: `${battery}%`, backgroundColor: batteryColor }]} />
           </View>
         <View>
         {/* Connect button, opens Device Connection */}
@@ -55,6 +56,7 @@ import RingStatus from './RingStatus';
       marginLeft: 20, // lines the title up with the row text (4 stripe + 16 padding)
     },
     barTrack: { 
+      width: '100%',
       height: 8,
       borderRadius: 4,
       backgroundColor: colors.background,
@@ -64,9 +66,8 @@ import RingStatus from './RingStatus';
       overflow: 'hidden',
     },
     barFill: { 
-      height: 8,
+      height: '100%',
       borderRadius: 4,
-      backgroundColor: colors.success,
     },
     connectButton: { 
       backgroundColor: colors.primary,

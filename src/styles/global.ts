@@ -10,6 +10,9 @@ export const colors = {
   alert: '#ff5252',
   success: '#2e9e4a', 
   muted: '#c3c9c0',
+  batteryGreen: '#198900',
+  batteryYellow: '#d3e200',
+  batteryRed: '#ff0000',
 };
 
 export const globalStyles = StyleSheet.create({

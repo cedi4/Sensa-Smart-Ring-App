@@ -2,10 +2,11 @@ import { colors } from '@/styles/global';
 import { StyleSheet, Text, View } from 'react-native';
 
 type RingStatusProps = {
-  label: string;
+  label?: string;
   value: string;
   color: string;
-  last?: boolean;      
+  last?: boolean;
+  connectDot?: boolean;      
 };
 
 export default function RingStatus({
@@ -13,11 +14,14 @@ export default function RingStatus({
   value,
   color,
   last,     
+  connectDot = true, 
 }: RingStatusProps) {
   return (
     <View style={[styles.row, { borderLeftColor: color }, !last && styles.divider]}>  
-      <Text style={styles.label}>{label}</Text>  
-      <Text style={[styles.value, { color }]}>{value}</Text></View>
+      {connectDot && <View style={[styles.dot, { backgroundColor: color }]} />}
+      {label && <Text style={styles.label}>{label}</Text>} 
+      <Text style={[styles.value, { color }]}>{value}</Text>
+    </View>
   );
 }
 
