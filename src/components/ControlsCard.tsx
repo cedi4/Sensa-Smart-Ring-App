@@ -5,7 +5,7 @@ import { StyleSheet, Text, View } from 'react-native';
 export default function ControlsCard() {
   return (
     <View style={styles.box}>
-      <Text style={globalStyles.sectionTitle}>Controls / Feedback</Text>
+      <Text style={[globalStyles.sectionTitle, {marginTop: 0}]}>Controls</Text>
       <View style={styles.row}>
         {/* Behavior Detected Status + Action Button */}
         <View style={styles.statusBox}>
@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   vibrate: {
-    backgroundColor: colors.textSecondary,
+    backgroundColor: colors.primary,
     lineHeight: 20,
     paddingTop: 28,
   },

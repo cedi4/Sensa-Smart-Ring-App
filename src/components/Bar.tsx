@@ -14,7 +14,7 @@ export default function Bar({
     <View
       style={[
         styles.bar,
-        { height, backgroundColor: highlight ? colors.primary : colors.muted },
+        { height, backgroundColor: highlight ? colors.bar : colors.muted },
       ]}
     />
   );

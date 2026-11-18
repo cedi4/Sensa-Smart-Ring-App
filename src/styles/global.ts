@@ -5,6 +5,7 @@ export const colors = {
   header: '#242444',
   surface: '#DCE9EF',
   primary: '#59aec8',
+  bar: '#00bcf5',
   text: '#000000',
   textSecondary:  '#000000',
   alert: '#ff5252',
