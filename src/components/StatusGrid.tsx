@@ -13,7 +13,7 @@ import RingStatus from './RingStatus';
         <Image source={require('../../assets/images/ringCAD.png')} style={styles.ringImage} />
 
       <View style={styles.info}>
-        <Text style={styles.title}>Smart Ring</Text>
+        <Text style={styles.title}>Sensa Ring</Text>
         <RingStatus value={connected ? 'Connected' : 'Disconnected'} color={statusColor} connectDot last /> 
         <RingStatus label='Battery' value='' color={batteryColor} connectDot={false}   last /> 
 
@@ -56,9 +56,12 @@ import RingStatus from './RingStatus';
     title: { 
       fontSize: 20,
       fontWeight: 'bold',
-      color: colors.text,
+      color: '#004744',
       marginTop: 12,
-      marginLeft: 20, // lines the title up with the row text (4 stripe + 16 padding)
+      marginLeft: 40, // lines the title up with the row text (4 stripe + 16 padding)
+      textShadowColor: '#4fc3f7',    
+      textShadowOffset: { width: 0, height: 0 }, 
+      textShadowRadius: 4,          
     },
     barTrack: { 
       flex: 1,
