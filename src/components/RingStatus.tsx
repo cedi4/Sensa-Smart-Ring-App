@@ -41,11 +41,13 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
-    marginRight: 12,
+    marginRight: 100,
+    marginLeft: 10,
   },
   label: {
     flex: 1,
-    fontSize: 16,
+    fontSize: 18,
+    fontWeight: 'bold',
     color: colors.textSecondary,
   },
   value: {

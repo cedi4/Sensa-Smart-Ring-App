@@ -1,4 +1,4 @@
-import { colors, globalStyles } from '@/styles/global';
+import { globalStyles } from '@/styles/global';
 import { StyleSheet, Text, View } from 'react-native';
 
 export default function HomeHeader() {
@@ -18,8 +18,8 @@ export default function HomeHeader() {
 const styles = StyleSheet.create({
   date: {
     fontSize: 14,
-    color: colors.textSecondary,
+    color: '#000000',
     marginTop: 4,
-    marginBottom: 30,
+    marginBottom: 10,
   },
 });

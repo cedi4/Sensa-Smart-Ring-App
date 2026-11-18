@@ -5,7 +5,7 @@ import Bar from './Bar';
 export default function TodaysActivities() {
   return (
     <View style={styles.box}>
-      <Text style={globalStyles.sectionTitle}>Today's Activities</Text>
+      <Text style={[globalStyles.sectionTitle, {marginTop: 0}]}>Today's Activities</Text>
       {/* big number + label */}
       <View style={styles.countRow}>
         <Text style={styles.count}>6</Text>
@@ -67,7 +67,7 @@ export default function TodaysActivities() {
     labels: { 
       flexDirection: 'row',
       justifyContent: 'space-between',
-      marginTop: 4,
+      marginTop: 8,
     },
     labelText: { 
       fontSize: 11,

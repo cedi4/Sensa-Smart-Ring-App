@@ -4,7 +4,7 @@ import { Image, StyleSheet, Text, View } from 'react-native';
 import RingStatus from './RingStatus';
 
   export default function StatusGrid() {
-    const battery = 88;
+    const battery = 30;
     const connected = false; // will come from BLE later
     const statusColor = connected ? colors.success : colors.alert; // use specific color depending on connection status
     const batteryColor = battery <= 10 ? colors.batteryRed : battery <= 20 ? colors.batteryYellow : colors.batteryGreen;
@@ -56,15 +56,15 @@ import RingStatus from './RingStatus';
     title: { 
       fontSize: 20,
       fontWeight: 'bold',
-      color: '#004744',
+      color: '#468a9e',
       marginTop: 12,
       marginLeft: 40, // lines the title up with the row text (4 stripe + 16 padding)
-      textShadowColor: '#4fc3f7',    
+      textShadowColor: '#8BCCE0',    
       textShadowOffset: { width: 0, height: 0 }, 
       textShadowRadius: 4,          
     },
     barTrack: { 
-      flex: 1,
+    flex: 1,
     height: 10,
     borderRadius: 4,
     backgroundColor: colors.background,
@@ -75,6 +75,7 @@ import RingStatus from './RingStatus';
       alignItems: 'center',
       marginLeft: 20,
       marginRight: -40,
+      marginTop: -10,
       marginBottom: 16,
     },
     barFill: { 
@@ -83,7 +84,7 @@ import RingStatus from './RingStatus';
     },
     connectButton: { 
       backgroundColor: colors.primary,
-      color: colors.background,
+      color: '#FFFFFF',
       fontSize: 12,
       fontWeight: 'bold',
       textAlign: 'center',

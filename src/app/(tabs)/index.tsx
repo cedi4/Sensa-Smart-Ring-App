@@ -9,7 +9,7 @@ import { ScrollView, StyleSheet, Text } from 'react-native';
 export default function HomeScreen() {
   return (
     <ScrollView style={globalStyles.container}>
-      <Text style={globalStyles.title}>Good Evening, Cedric</Text>
+      <Text style={[globalStyles.title, { marginTop: 10}]}>Good Evening, Cedric</Text>
      {/*Older date header component before step 18:
       <Text style={styles.date}>Monday, March 16</Text> */}
       <HomeHeader />
