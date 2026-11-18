@@ -2,10 +2,12 @@ import { colors } from '@/styles/global';
 import { Link } from 'expo-router';
 import { Image, StyleSheet, Text, View } from 'react-native';
 import RingStatus from './RingStatus';
+import { useRingData } from '@/context/RingDataContext';
 
   export default function StatusGrid() {
-    const battery = 30;
-    const connected = false; // will come from BLE later
+   // const battery = 30; old static version
+   // const connected = false; old static version
+    const { battery, connected } = useRingData();
     const statusColor = connected ? colors.success : colors.alert; // use specific color depending on connection status
     const batteryColor = battery <= 10 ? colors.batteryRed : battery <= 20 ? colors.batteryYellow : colors.batteryGreen;
     return (
