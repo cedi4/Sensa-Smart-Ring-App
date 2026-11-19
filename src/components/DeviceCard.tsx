@@ -20,7 +20,8 @@ export default function DeviceCard({
         <Text style={styles.signal}>{signal}</Text>
       </View>
       <Link href='/'  
-        onPress={() => pressConnect()} // Call the pressConnect function when the button is pressed
+        // Call the pressConnect function when the button is pressed
+        onPress={() => pressConnect()} 
         style={styles.button}
         >
         Connect
