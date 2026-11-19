@@ -1,120 +1,73 @@
 import { RingEvent } from '@/database/eventRepo';
-import {
-  RingPacket,
-  RingPacketListener,
-} from './ringPacketTypes';
 
-export type TestRingService = {
-  connect: () => void;
-  disconnect: () => void;
-  emitEvent: (event: RingEvent) => void;
-  emitBattery: (battery: number) => void;
-  startAutomaticSimulation: () => void;
-  stopAutomaticSimulation: () => void;
+type MockBleCallbacks = {
+  // Updates the connection state in RingDataContext
+  onConnectionChange: (connected: boolean) => void;
+
+  // Updates the battery state in RingDataContext
+  onBattery: (battery: number) => void;
+
+  // Saves a fake event to SQLite and app state
+  onEvent: (
+    event: RingEvent
+  ) => void | Promise<void>;
 };
 
-export function createTestRingService(
-  onPacket: RingPacketListener
-): TestRingService {
-  let connected = false;
+export function startMockBle(
+  callbacks: MockBleCallbacks
+) {
   let eventId = 1;
-  let batteryTimer: ReturnType<typeof setInterval> | null = null;
-  let eventTimer: ReturnType<typeof setInterval> | null = null;
+  let battery = 100;
 
-  const send = (packet: RingPacket) => {
-    // Every test packet enters the app here.
-    onPacket(packet);
-  };
+  // Tell the context that the fake ring connected
+  callbacks.onConnectionChange(true);
 
-  const connect = () => {
-    connected = true;
+  // Send the starting battery value
+  callbacks.onBattery(battery);
 
-    send({
-      kind: 'telemetry',
-      connected: true,
-      battery: 100,
+  // Decrease the battery every 5 seconds
+  const batteryTimer = setInterval(() => {
+    battery = Math.max(0, battery - 1);
+
+    callbacks.onBattery(battery);
+  }, 5000);
+
+  // Create a fake event every 8 seconds
+  const eventTimer = setInterval(() => {
+    const behaviors = [
+      'nail_bite',
+      'face_touch',
+      'hair_pull',
+    ];
+
+    const event: RingEvent = {
+      deviceEventId: eventId,
+
+      eventType:
+        behaviors[eventId % behaviors.length],
+
       timestamp: new Date().toISOString(),
-    });
-  };
 
-  const disconnect = () => {
-    stopAutomaticSimulation();
-    connected = false;
+      confidence:
+        Math.floor(Math.random() * 16) + 80,
 
-    send({
-      kind: 'telemetry',
-      connected: false,
-      battery: 0,
-      timestamp: new Date().toISOString(),
-    });
-  };
+      batteryLevel: battery,
 
-  const emitBattery = (battery: number) => {
-    send({
-      kind: 'telemetry',
-      connected,
-      battery: Math.min(100, Math.max(0, battery)),
-      timestamp: new Date().toISOString(),
-    });
-  };
+      source: 'mock-ble',
+    };
 
-  const emitEvent = (event: RingEvent) => {
-    console.log('Test packet emitted:', event);
+    eventId += 1;
 
-    send({
-      kind: 'event',
-      event,
-    });
-  };
+    // Send the event to RingDataContext
+    callbacks.onEvent(event);
+  }, 8000);
 
-  const startAutomaticSimulation = () => {
-    if (!connected || batteryTimer || eventTimer) {
-      return;
-    }
+  // Return a cleanup function to stop the fake ring
+  return () => {
+    clearInterval(batteryTimer);
+    clearInterval(eventTimer);
 
-    batteryTimer = setInterval(() => {
-      emitBattery(Math.floor(Math.random() * 31) + 60);
-    }, 5000);
-
-    eventTimer = setInterval(() => {
-      const behaviors = [
-        'nail_bite',
-        'face_touch',
-        'hair_pull',
-      ];
-
-      const event: RingEvent = {
-        deviceEventId: eventId,
-        eventType: behaviors[eventId % behaviors.length],
-        timestamp: new Date().toISOString(),
-        confidence: Math.floor(Math.random() * 16) + 80,
-        batteryLevel: 75,
-        source: 'mock-ble',
-      };
-
-      eventId += 1;
-      emitEvent(event);
-    }, 8000);
-  };
-
-  const stopAutomaticSimulation = () => {
-    if (batteryTimer) {
-      clearInterval(batteryTimer);
-      batteryTimer = null;
-    }
-
-    if (eventTimer) {
-      clearInterval(eventTimer);
-      eventTimer = null;
-    }
-  };
-
-  return {
-    connect,
-    disconnect,
-    emitEvent,
-    emitBattery,
-    startAutomaticSimulation,
-    stopAutomaticSimulation,
+    // Tell the context that the fake ring disconnected
+    callbacks.onConnectionChange(false);
   };
 }
