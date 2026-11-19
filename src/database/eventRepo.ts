@@ -1,4 +1,5 @@
 import { appDb } from './database';
+//Import the database connection instance from database.ts
 
 export type RingEvent = {
   id?: number;
@@ -11,7 +12,7 @@ export type RingEvent = {
 };
 
 export async function addEvent(event: RingEvent) {
-  const db = await appDb;
+  const db = await appDb; //Use the database connection instance to get the database object
 
   await db.runAsync(
     `INSERT INTO events

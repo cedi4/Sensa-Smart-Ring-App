@@ -1,8 +1,10 @@
 import DeviceCard from '@/components/DeviceCard';
 import { colors, globalStyles } from '@/styles/global';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useRingData } from '@/context/RingDataContext';
 
 export default function DeviceConnectionScreen() {
+  const { setConnected } = useRingData(); // Access the setConnected function from the context
   return (
     <ScrollView style={globalStyles.container}>
       <Text style={globalStyles.title}>Device Connection</Text>
@@ -19,13 +21,14 @@ export default function DeviceConnectionScreen() {
         <Text style={styles.statusText}>Scanning...</Text>
       </View>
 
-      {/* list of devices */}
+      {/* list of devices BEFORE REAL BLE THIS IS TEMPORARY */}
       <View style={[styles.box, { marginBottom: 40 }]}>
         <Text style={styles.boxTitle}>List of Devices</Text>
-        <DeviceCard name='Device 1' signal='SensaRing-A41F, strong signal' />
-        <DeviceCard name='Device 2' signal='SensaRing-77C2, weak signal' />
-        <DeviceCard name='Device 3' signal='SensaRing-B90D, weak signal' />
-        <DeviceCard name='Device 4' signal='SensaRing-1E5A, weak signal' />
+        <DeviceCard name='Device 1' signal='SensaRing-A41F, strong signal' pressConnect={() => setConnected(true)} />
+        <DeviceCard name='Device 1' signal='SensaRing-A41F, strong signal' pressConnect={() => setConnected(true)} />
+        <DeviceCard name='Device 2' signal='SensaRing-77C2, weak signal' pressConnect={() => setConnected(true)} />
+        <DeviceCard name='Device 3' signal='SensaRing-B90D, weak signal' pressConnect={() => setConnected(true)} />
+        <DeviceCard name='Device 4' signal='SensaRing-1E5A, weak signal' pressConnect={() => setConnected(true)} />
       </View>
     </ScrollView>
   );

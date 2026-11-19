@@ -5,11 +5,13 @@ import { StyleSheet, Text, View } from 'react-native';
 type DeviceCardProps = {
   name: string;
   signal: string;
+  pressConnect: () => void;
 };
 
 export default function DeviceCard({
   name,
   signal,
+  pressConnect,
 }: DeviceCardProps) {
   return (
     <View style={styles.card}>
@@ -17,7 +19,10 @@ export default function DeviceCard({
         <Text style={styles.name}>{name}</Text>
         <Text style={styles.signal}>{signal}</Text>
       </View>
-      <Link href='/' style={styles.button}>
+      <Link href='/'  
+        onPress={() => pressConnect()} // Call the pressConnect function when the button is pressed
+        style={styles.button}
+        >
         Connect
       </Link>
     </View>
