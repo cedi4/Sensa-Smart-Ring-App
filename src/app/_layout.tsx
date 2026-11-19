@@ -1,6 +1,6 @@
+import { RingDataProvider } from '@/context/RingDataContext';
 import { colors } from '@/styles/global';
 import { Stack } from 'expo-router';
-import { RingDataProvider } from '@/context/RingDataContext';
 
 export default function RootLayout() {
   return (
@@ -26,6 +26,10 @@ export default function RootLayout() {
         <Stack.Screen
           name='specificEventScreen'
           options={{ title: 'Specific Event' }}
+        />
+        <Stack.Screen
+          name="listOfEventsScreen"
+          options={{ title: 'All Events' }}
         />
         <Stack.Screen name='(tabs)' options={{ headerShown: false }} />
       </Stack>

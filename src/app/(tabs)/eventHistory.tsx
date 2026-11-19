@@ -1,10 +1,15 @@
 import Bar from '@/components/Bar';
 import EventRow from '@/components/EventRow';
 import TimeRow from '@/components/TimeRow';
+import { useRingData } from '@/context/RingDataContext';
 import { colors, globalStyles } from '@/styles/global';
+import { Link } from 'expo-router';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 export default function EventHistory() {
+  const { events } = useRingData();
+  // To display only the 5 most recent events on the main history page
+  const recentEvents = events.slice(0, 5);
   return (
     <ScrollView style={globalStyles.container}>
       <Text style={globalStyles.title}>History</Text>
@@ -18,7 +23,7 @@ export default function EventHistory() {
 
       {/* : number of detected behaviors */}
       <View style={styles.box}>
-        <Text style={styles.boxTitle}>Number of detected behaviors</Text>
+        <Text style={styles.boxTitle}>Detected Behaviors</Text>
         <Text style={styles.boxSub}>(for the week)</Text>
         <View style={styles.chart}>
           <Bar height={55} />
@@ -42,21 +47,53 @@ export default function EventHistory() {
 
       {/* : chart of when behaviors are detected */}
       <View style={styles.box}>
-        <Text style={styles.boxTitle}>When behaviors are detected</Text>
+        <Text style={styles.boxTitle}>High Risk Periods</Text>
         <TimeRow label='Morning' range='12:00am - 11:59am' percent={20} />
         <TimeRow label='Afternoon' range='12:00pm - 5:00pm' percent={55} />
         <TimeRow label='Evening' range='5:00pm - 8:00pm' percent={40} />
         <TimeRow label='Night' range='8:00pm - 12:00am' percent={10} />
       </View>
 
-      {/* CHANGED: History of Activities, each row opens Specific Event */}
-      <View style={[styles.box, { marginBottom: 40 }]}>
-        <Text style={styles.boxTitle}>History of Activities</Text>
-        <EventRow date='Nov 5' time='8:42 AM' detection='Face Touch' />
-        <EventRow date='Nov 5' time='12:18 PM' detection='Face Pick' />
-        <EventRow date='Nov 4' time='3:57 PM' detection='Hair Pull' />
-        <EventRow date='Nov 4' time='9:10 PM' detection='Face Touch' />
-      </View>
+    {/* ADDED: displays only the five most recent events */}
+<View style={styles.box}>
+  <View style={styles.recentHeader}>
+    <Text style={[styles.boxTitle, styles.recentTitle]}>
+  Recent Events
+    </Text>
+  </View>
+
+  {recentEvents.length === 0 ? (
+    // ADDED: message when no events exist
+    <Text style={styles.emptyText}>
+      No events recorded yet.
+    </Text>
+  ) : (
+    // ADDED: displays only the first five events
+    recentEvents.map((event) => (
+      <EventRow
+        key={
+          event.id ??
+          event.deviceEventId
+        }
+        date={new Date(
+          event.timestamp
+        ).toLocaleDateString()}
+        time={new Date(
+          event.timestamp
+        ).toLocaleTimeString()}
+        detection={event.eventType}
+      />
+    ))
+  )}
+
+   {/* Link appears below the event rows */}
+  <Link
+    href="/listOfEventsScreen"
+    style={styles.seeMore}
+  >
+    See More
+  </Link>
+</View>
     </ScrollView>
   );
 }
@@ -150,4 +187,29 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  // ADDED: puts the title and See More link on one row
+recentHeader: {
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  marginBottom: 14,
+},
+
+// ADDED: styles the See More navigation link
+seeMore: {
+  color: colors.primary,
+  fontSize: 14,
+  textAlign: 'center',
+  fontWeight: 'bold',
+},
+
+// ADDED: styles the empty event message
+emptyText: {
+  color: colors.textSecondary,
+  textAlign: 'center',
+  paddingVertical: 12,
+},
+recentTitle: {
+  textAlign: 'left',
+  marginBottom: 0,
+},
 });
