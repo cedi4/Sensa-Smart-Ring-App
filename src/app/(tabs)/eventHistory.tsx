@@ -58,7 +58,11 @@ export default function EventHistory() {
 <View style={styles.box}>
   <View style={styles.recentHeader}>
     <Text style={[styles.boxTitle, styles.recentTitle]}>
+<<<<<<< HEAD
   Recent Events
+=======
+  Event History
+>>>>>>> 158e569 (Made history list of events to show only 5 and to see the rest use a button)
     </Text>
   </View>
 

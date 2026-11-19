@@ -42,6 +42,20 @@ export default function TabLayout() {
           ),
         }}
        />
+      {/* ADDED: temporary testing-only tab */}
+      <Tabs.Screen
+        name="testingScreen"
+        options={{
+          title: 'Testing',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons
+              name="flask-outline"
+              size={size}
+              color={color as string}
+            />
+          ),
+        }}
+      />
     </Tabs>
   );
 }
