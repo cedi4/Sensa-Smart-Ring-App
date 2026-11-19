@@ -1,81 +1,120 @@
 import { RingEvent } from '@/database/eventRepo';
+import {
+  RingPacket,
+  RingPacketListener,
+} from './ringPacketTypes';
 
-// Functions that the mock BLE service
-// will call when ring data changes.
-type MockBleCallbacks = {
-  // Called when the fake ring connects or disconnects
-  onConnectionChange: (connected: boolean) => void;
-
-  // Called when the fake battery changes
-  onBattery: (battery: number) => void;
-
-  // Called when the fake ring detects an event
-  onEvent: (event: RingEvent) => void;
+export type TestRingService = {
+  connect: () => void;
+  disconnect: () => void;
+  emitEvent: (event: RingEvent) => void;
+  emitBattery: (battery: number) => void;
+  startAutomaticSimulation: () => void;
+  stopAutomaticSimulation: () => void;
 };
 
-// Starts the fake BLE ring
-export function startMockBle(
-  callbacks: MockBleCallbacks
-) {
-  // Starting battery level
-  let battery = 100;
+export function createTestRingService(
+  onPacket: RingPacketListener
+): TestRingService {
+  let connected = false;
+  let eventId = 1;
+  let batteryTimer: ReturnType<typeof setInterval> | null = null;
+  let eventTimer: ReturnType<typeof setInterval> | null = null;
 
-  // Fake event number
-  let deviceEventId = 1;
+  const send = (packet: RingPacket) => {
+    // Every test packet enters the app here.
+    onPacket(packet);
+  };
 
-  // Tell the app that the fake ring connected
-  callbacks.onConnectionChange(true);
+  const connect = () => {
+    connected = true;
 
-  // Send the starting battery level
-  callbacks.onBattery(battery);
-
-  // Reduce the fake battery every five seconds
-  const batteryTimer = setInterval(() => {
-    // Do not allow battery below zero
-    battery = Math.max(0, battery - 1);
-
-    // Send the new battery value to the context
-    callbacks.onBattery(battery);
-  }, 5000);
-
-  // Create a fake event every eight seconds
-  const eventTimer = setInterval(() => {
-    const event: RingEvent = {
-      // Event number from the fake device
-      deviceEventId: deviceEventId,
-
-      // Fake detected behavior
-      eventType: 'nail_bite',
-
-      // Current date and time
+    send({
+      kind: 'telemetry',
+      connected: true,
+      battery: 100,
       timestamp: new Date().toISOString(),
+    });
+  };
 
-      // Random confidence between 80 and 95
-      confidence: Math.floor(Math.random() * 16) + 80,
+  const disconnect = () => {
+    stopAutomaticSimulation();
+    connected = false;
 
-      // Battery level when the event occurred
-      batteryLevel: battery,
+    send({
+      kind: 'telemetry',
+      connected: false,
+      battery: 0,
+      timestamp: new Date().toISOString(),
+    });
+  };
 
-      // Identifies this as test data
-      source: 'mock-ble',
-    };
+  const emitBattery = (battery: number) => {
+    send({
+      kind: 'telemetry',
+      connected,
+      battery: Math.min(100, Math.max(0, battery)),
+      timestamp: new Date().toISOString(),
+    });
+  };
 
-    // Prepare the next event number
-    deviceEventId += 1;
+  const emitEvent = (event: RingEvent) => {
+    console.log('Test packet emitted:', event);
 
-    // Send the event to RingDataContext
-    callbacks.onEvent(event);
-  }, 8000);
+    send({
+      kind: 'event',
+      event,
+    });
+  };
 
-  // Return a function that stops the fake BLE service
-  return () => {
-    // Stop battery updates
-    clearInterval(batteryTimer);
+  const startAutomaticSimulation = () => {
+    if (!connected || batteryTimer || eventTimer) {
+      return;
+    }
 
-    // Stop fake event creation
-    clearInterval(eventTimer);
+    batteryTimer = setInterval(() => {
+      emitBattery(Math.floor(Math.random() * 31) + 60);
+    }, 5000);
 
-    // Tell the app that the fake ring disconnected
-    callbacks.onConnectionChange(false);
+    eventTimer = setInterval(() => {
+      const behaviors = [
+        'nail_bite',
+        'face_touch',
+        'hair_pull',
+      ];
+
+      const event: RingEvent = {
+        deviceEventId: eventId,
+        eventType: behaviors[eventId % behaviors.length],
+        timestamp: new Date().toISOString(),
+        confidence: Math.floor(Math.random() * 16) + 80,
+        batteryLevel: 75,
+        source: 'mock-ble',
+      };
+
+      eventId += 1;
+      emitEvent(event);
+    }, 8000);
+  };
+
+  const stopAutomaticSimulation = () => {
+    if (batteryTimer) {
+      clearInterval(batteryTimer);
+      batteryTimer = null;
+    }
+
+    if (eventTimer) {
+      clearInterval(eventTimer);
+      eventTimer = null;
+    }
+  };
+
+  return {
+    connect,
+    disconnect,
+    emitEvent,
+    emitBattery,
+    startAutomaticSimulation,
+    stopAutomaticSimulation,
   };
 }
