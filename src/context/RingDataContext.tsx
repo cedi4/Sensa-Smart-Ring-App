@@ -69,14 +69,19 @@ export function RingDataProvider({
     setBattery(safeBattery);
   };
 
-  const addEvent = async (event: RingEvent) => {
-    await insertEvent(event);
+ const addEvent = async (event: RingEvent) => {
+  // Save the event to SQLite
+  await insertEvent(event);
 
-    setEvents((currentEvents) => [
-      event,
-      ...currentEvents,
-    ]);
-  };
+  // Update the battery display using the manually entered value
+  updateBattery(event.batteryLevel);
+
+  // Add the event to the visible event list
+  setEvents((currentEvents) => [
+    event,
+    ...currentEvents,
+  ]);
+};
 
   // This must be outside the useEffect
   const clearEvents = async () => {

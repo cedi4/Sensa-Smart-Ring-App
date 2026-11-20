@@ -12,12 +12,12 @@ import { colors, globalStyles } from '@/styles/global';
 import { useState } from 'react';
 
 import {
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    View,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
 } from 'react-native';
 
 export default function TestingScreen() {
@@ -141,6 +141,15 @@ export default function TestingScreen() {
           value={timestamp}
           onChangeText={setTimestamp}
           placeholder="Example: 2026-11-19T12:00:00.000Z"
+          placeholderTextColor={colors.textSecondary}
+        />
+
+        <TextInput
+          style={styles.input}
+          value={batteryLevel}
+          onChangeText={setBatteryLevel}
+          keyboardType="numeric"
+          placeholder="Example: 74"
           placeholderTextColor={colors.textSecondary}
         />
 
