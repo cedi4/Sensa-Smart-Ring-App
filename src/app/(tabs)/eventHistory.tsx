@@ -4,15 +4,187 @@ import TimeRow from '@/components/TimeRow';
 import { useRingData } from '@/context/RingDataContext';
 import { colors, globalStyles } from '@/styles/global';
 import { Link } from 'expo-router';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useState } from 'react';
+import {
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+
+type HistoryRange = 'day' | 'week' | 'month';
 
 export default function EventHistory() {
   const { events } = useRingData();
 
-  // Displays only the five most recent events
+  // ADDED: Tracks which graph range is selected
+  const [selectedRange, setSelectedRange] =
+    useState<HistoryRange>('week');
+
+  // To display only the 5 most recent events on the main history page
   const recentEvents = events.slice(0, 5);
 
-  // ADDED: Count events based on the time they occurred
+  // ADDED: Get the beginning of the selected range
+  const getStartDate = () => {
+    const startDate = new Date();
+
+    if (selectedRange === 'day') {
+      startDate.setHours(0, 0, 0, 0);
+    }
+
+    if (selectedRange === 'week') {
+      startDate.setDate(
+        startDate.getDate() - startDate.getDay()
+      );
+      startDate.setHours(0, 0, 0, 0);
+    }
+
+    if (selectedRange === 'month') {
+      startDate.setDate(1);
+      startDate.setHours(0, 0, 0, 0);
+    }
+
+    return startDate;
+  };
+
+  // ADDED: Get the end of the selected range
+  const getEndDate = () => {
+    const endDate = new Date();
+
+    if (selectedRange === 'day') {
+      endDate.setHours(23, 59, 59, 999);
+    }
+
+    if (selectedRange === 'week') {
+      endDate.setDate(
+        endDate.getDate() + (6 - endDate.getDay())
+      );
+      endDate.setHours(23, 59, 59, 999);
+    }
+
+    if (selectedRange === 'month') {
+      endDate.setMonth(endDate.getMonth() + 1);
+      endDate.setDate(0);
+      endDate.setHours(23, 59, 59, 999);
+    }
+
+    return endDate;
+  };
+
+  // ADDED: Only events inside the selected range affect the graph
+  const filteredGraphEvents = events.filter((event) => {
+    const eventDate = new Date(event.timestamp);
+
+    return (
+      eventDate >= getStartDate() &&
+      eventDate <= getEndDate()
+    );
+  });
+
+  // ADDED: Chart values and labels
+  let chartCounts: number[] = [];
+  let chartLabels: string[] = [];
+
+  if (selectedRange === 'day') {
+    // Six four-hour sections for one day
+    chartCounts = [0, 0, 0, 0, 0, 0];
+
+    chartLabels = [
+      '12AM',
+      '4AM',
+      '8AM',
+      '12PM',
+      '4PM',
+      '8PM',
+    ];
+
+    filteredGraphEvents.forEach((event) => {
+      const hour = new Date(
+        event.timestamp
+      ).getHours();
+
+      const section = Math.floor(hour / 4);
+      chartCounts[section] += 1;
+    });
+  }
+
+  if (selectedRange === 'week') {
+    // One value for each day of the week
+    chartCounts = [0, 0, 0, 0, 0, 0, 0];
+
+    chartLabels = [
+      'SUN',
+      'MON',
+      'TUE',
+      'WED',
+      'THU',
+      'FRI',
+      'SAT',
+    ];
+
+    filteredGraphEvents.forEach((event) => {
+      const day = new Date(
+        event.timestamp
+      ).getDay();
+
+      chartCounts[day] += 1;
+    });
+  }
+
+  if (selectedRange === 'month') {
+    // One value for each week of the month
+    const now = new Date();
+
+    const daysInMonth = new Date(
+      now.getFullYear(),
+      now.getMonth() + 1,
+      0
+    ).getDate();
+
+    const numberOfWeeks = Math.ceil(
+      daysInMonth / 7
+    );
+
+    chartCounts = Array(numberOfWeeks).fill(0);
+
+    chartLabels = Array.from(
+      { length: numberOfWeeks },
+      (_, index) => `W${index + 1}`
+    );
+
+    filteredGraphEvents.forEach((event) => {
+      const dayOfMonth = new Date(
+        event.timestamp
+      ).getDate();
+
+      const weekIndex = Math.floor(
+        (dayOfMonth - 1) / 7
+      );
+
+      chartCounts[weekIndex] += 1;
+    });
+  }
+
+  // ADDED: Find the largest event count
+  const largestCount = Math.max(
+    ...chartCounts,
+    0
+  );
+
+  // ADDED: Convert event counts into bar heights
+  const chartHeights = chartCounts.map((count) => {
+    if (count === 0 || largestCount === 0) {
+      return 0;
+    }
+
+    return Math.max(
+      10,
+      Math.round((count / largestCount) * 95)
+    );
+  });
+
+  // Existing high-risk-period calculation
   const periodCounts = {
     morning: 0,
     afternoon: 0,
@@ -21,7 +193,9 @@ export default function EventHistory() {
   };
 
   events.forEach((event) => {
-    const hour = new Date(event.timestamp).getHours();
+    const hour = new Date(
+      event.timestamp
+    ).getHours();
 
     if (hour >= 0 && hour < 12) {
       periodCounts.morning += 1;
@@ -34,14 +208,12 @@ export default function EventHistory() {
     }
   });
 
-  // ADDED: Count all events in the four time periods
   const totalPeriodEvents =
     periodCounts.morning +
     periodCounts.afternoon +
     periodCounts.evening +
     periodCounts.night;
 
-  // ADDED: Convert each time-period count into a percentage
   const getPeriodPercentage = (count: number) => {
     if (totalPeriodEvents === 0) {
       return 0;
@@ -56,47 +228,102 @@ export default function EventHistory() {
     <ScrollView style={globalStyles.container}>
       <Text style={globalStyles.title}>History</Text>
 
-      {/* Day / Week / Month */}
+      {/* CHANGED: Day / Week / Month are now pressable */}
       <View style={styles.segment}>
-        <Text style={styles.segmentText}>Day</Text>
-        <Text style={[styles.segmentText, styles.selected]}>
-          Week
-        </Text>
-        <Text style={styles.segmentText}>Month</Text>
+        <Pressable
+          style={[
+            styles.segmentButton,
+            selectedRange === 'day' &&
+              styles.selected,
+          ]}
+          onPress={() => setSelectedRange('day')}
+        >
+          <Text
+            style={[
+              styles.segmentText,
+              selectedRange === 'day' &&
+                styles.selectedText,
+            ]}
+          >
+            Day
+          </Text>
+        </Pressable>
+
+        <Pressable
+          style={[
+            styles.segmentButton,
+            selectedRange === 'week' &&
+              styles.selected,
+          ]}
+          onPress={() => setSelectedRange('week')}
+        >
+          <Text
+            style={[
+              styles.segmentText,
+              selectedRange === 'week' &&
+                styles.selectedText,
+            ]}
+          >
+            Week
+          </Text>
+        </Pressable>
+
+        <Pressable
+          style={[
+            styles.segmentButton,
+            selectedRange === 'month' &&
+              styles.selected,
+          ]}
+          onPress={() => setSelectedRange('month')}
+        >
+          <Text
+            style={[
+              styles.segmentText,
+              selectedRange === 'month' &&
+                styles.selectedText,
+            ]}
+          >
+            Month
+          </Text>
+        </Pressable>
       </View>
 
-      {/* Number of detected behaviors */}
+      {/* CHANGED: detected behaviors graph now uses real events */}
       <View style={styles.box}>
         <Text style={styles.boxTitle}>
           Detected Behaviors
         </Text>
 
         <Text style={styles.boxSub}>
-          (for the week)
+          (for the {selectedRange})
         </Text>
 
         <View style={styles.chart}>
-          <Bar height={55} />
-          <Bar height={55} />
-          <Bar height={80} />
-          <Bar height={30} />
-          <Bar height={95} highlight />
-          <Bar height={65} />
-          <Bar height={70} />
+          {chartHeights.map((height, index) => (
+            <Bar
+              key={chartLabels[index]}
+              height={height}
+              highlight={
+                chartCounts[index] === largestCount &&
+                largestCount > 0
+              }
+            />
+          ))}
         </View>
 
         <View style={styles.days}>
-          <Text style={styles.dayText}>SUN</Text>
-          <Text style={styles.dayText}>MON</Text>
-          <Text style={styles.dayText}>TUE</Text>
-          <Text style={styles.dayText}>WED</Text>
-          <Text style={styles.dayText}>THU</Text>
-          <Text style={styles.dayText}>FRI</Text>
-          <Text style={styles.dayText}>SAT</Text>
+          {chartLabels.map((label) => (
+            <Text
+              key={label}
+              style={styles.dayText}
+            >
+              {label}
+            </Text>
+          ))}
         </View>
       </View>
 
-      {/* ADDED: High Risk Periods now use real event timestamps */}
+      {/* Existing high-risk-period section */}
       <View style={styles.box}>
         <Text style={styles.boxTitle}>
           High Risk Periods
@@ -143,15 +370,10 @@ export default function EventHistory() {
         )}
       </View>
 
-      {/* Displays only the five most recent events */}
+      {/* Existing recent-events section */}
       <View style={styles.box}>
         <View style={styles.recentHeader}>
-          <Text
-            style={[
-              styles.boxTitle,
-              styles.recentTitle,
-            ]}
-          >
+          <Text style={[styles.boxTitle, styles.recentTitle]}>
             Recent Events
           </Text>
         </View>
@@ -178,7 +400,6 @@ export default function EventHistory() {
           ))
         )}
 
-        {/* Link appears below the event rows */}
         <Link
           href="/listOfEventsScreen"
           style={styles.seeMore}
@@ -199,8 +420,12 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
 
-  segmentText: {
+  // ADDED: lets each range button fill one section
+  segmentButton: {
     flex: 1,
+  },
+
+  segmentText: {
     textAlign: 'center',
     paddingVertical: 12,
     fontSize: 16,
@@ -209,6 +434,10 @@ const styles = StyleSheet.create({
 
   selected: {
     backgroundColor: colors.primary,
+  },
+
+  // ADDED: keeps selected text readable
+  selectedText: {
     color: colors.background,
     fontWeight: 'bold',
   },
