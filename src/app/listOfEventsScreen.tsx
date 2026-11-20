@@ -1,32 +1,7 @@
 import EventRow from '@/components/EventRow';
 import { useRingData } from '@/context/RingDataContext';
 import { colors, globalStyles } from '@/styles/global';
-<<<<<<< HEAD
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
-export default function ListOfEventsScreen() {
-  // Get all events loaded from SQLite/context
-  const { events } = useRingData();
-
-  let eventContent;
-
-  if (events.length === 0) {
-    eventContent = (
-      <Text style={styles.emptyText}>
-        No events recorded yet.
-      </Text>
-    );
-  } else {
-    eventContent = events.map((event) => (
-      <EventRow
-        key={event.id ?? event.deviceEventId}
-        date={new Date(event.timestamp).toLocaleDateString()}
-        time={new Date(event.timestamp).toLocaleTimeString()}
-        detection={event.eventType}
-      />
-    ));
-  }
-=======
 import {
   Alert,
   Pressable,
@@ -54,12 +29,13 @@ export default function ListOfEventsScreen() {
         {
           text: 'Delete',
           style: 'destructive',
-          onPress: clearEvents,
+          onPress: async () => {
+            await clearEvents();
+          },
         },
       ]
     );
   };
->>>>>>> 158e569 (Made history list of events to show only 5 and to see the rest use a button)
 
   return (
     <ScrollView style={globalStyles.container}>
@@ -68,15 +44,6 @@ export default function ListOfEventsScreen() {
       </Text>
 
       <View style={styles.box}>
-<<<<<<< HEAD
-        <Text style={styles.boxTitle}>
-          Event History
-        </Text>
-
-        {/* Displays either the empty message or event rows */}
-        {eventContent}
-=======
-        {/* Title and delete button on the same row */}
         <View style={styles.headerRow}>
           <Text style={styles.boxTitle}>
             Event History
@@ -114,7 +81,6 @@ export default function ListOfEventsScreen() {
             />
           ))
         )}
->>>>>>> 158e569 (Made history list of events to show only 5 and to see the rest use a button)
       </View>
     </ScrollView>
   );
@@ -123,12 +89,6 @@ export default function ListOfEventsScreen() {
 const styles = StyleSheet.create({
   box: {
     marginTop: 20,
-<<<<<<< HEAD
-    padding: 16,
-    backgroundColor: colors.surface,
-    borderRadius: 12,
-    marginBottom: 40,
-=======
     marginBottom: 40,
     padding: 16,
     backgroundColor: colors.surface,
@@ -140,17 +100,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 12,
->>>>>>> 158e569 (Made history list of events to show only 5 and to see the rest use a button)
   },
 
   boxTitle: {
     fontSize: 16,
     fontWeight: 'bold',
     color: colors.text,
-<<<<<<< HEAD
-    textAlign: 'center',
-    marginBottom: 12,
-=======
   },
 
   deleteButton: {
@@ -163,7 +118,6 @@ const styles = StyleSheet.create({
   deleteButtonText: {
     color: '#fff',
     fontWeight: 'bold',
->>>>>>> 158e569 (Made history list of events to show only 5 and to see the rest use a button)
   },
 
   emptyText: {
