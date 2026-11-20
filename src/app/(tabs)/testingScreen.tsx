@@ -1,10 +1,10 @@
-// ADDED: allows us to show validation messages
+// Allows us to show validation messages
 import { Alert } from 'react-native';
 
-// ADDED: gets the shared addEvent function
+// Gets the shared addEvent function
 import { useRingData } from '@/context/RingDataContext';
 
-// ADDED: identifies the event structure
+// Identifies the event structure
 import { RingEvent } from '@/database/eventRepo';
 
 import { colors, globalStyles } from '@/styles/global';
@@ -21,10 +21,21 @@ import {
 } from 'react-native';
 
 export default function TestingScreen() {
-  // ADDED: addEvent saves the event to SQLite
+  // addEvent saves the event to SQLite
   const { addEvent } = useRingData();
 
-  // ADDED: form values
+  // ADDED: Separate date and time values
+  const currentDate = new Date();
+
+  const [eventDate, setEventDate] = useState(
+    currentDate.toISOString().slice(0, 10)
+  );
+
+  const [eventTime, setEventTime] = useState(
+    currentDate.toTimeString().slice(0, 5)
+  );
+
+  // Form values
   const [eventType, setEventType] =
     useState('nail_bite');
 
@@ -34,15 +45,27 @@ export default function TestingScreen() {
   const [batteryLevel, setBatteryLevel] =
     useState('74');
 
-  const [timestamp, setTimestamp] =
-    useState(new Date().toISOString());
-
   const submitTestEvent = async () => {
-    // ADDED: convert text input values into numbers
+    // Convert text input values into numbers
     const confidenceNumber = Number(confidence);
     const batteryNumber = Number(batteryLevel);
 
-    // ADDED: prevent invalid form data
+    // ADDED: Combine the date and time into one JavaScript date
+    const typedDate = new Date(
+      `${eventDate}T${eventTime}:00`
+    );
+
+    // ADDED: Prevent invalid date or time values
+    if (Number.isNaN(typedDate.getTime())) {
+      Alert.alert(
+        'Invalid date or time',
+        'Use the format YYYY-MM-DD and HH:MM.'
+      );
+
+      return;
+    }
+
+    // Prevent invalid form data
     if (
       eventType.trim() === '' ||
       Number.isNaN(confidenceNumber) ||
@@ -56,26 +79,31 @@ export default function TestingScreen() {
       return;
     }
 
-    // ADDED: creates one artificial event
+    // Creates one artificial event
     const testEvent: RingEvent = {
       deviceEventId: Date.now(),
       eventType: eventType.trim(),
-      timestamp,
+
+      // ADDED: Save the separate date and time as an ISO timestamp
+      timestamp: typedDate.toISOString(),
+
       confidence: Math.min(
         100,
         Math.max(0, confidenceNumber)
       ),
+
       batteryLevel: Math.min(
         100,
         Math.max(0, batteryNumber)
       ),
+
       source: 'mock-ble',
     };
 
-    // ADDED: saves the event to SQLite
+    // Saves the event to SQLite
     await addEvent(testEvent);
 
-    // ADDED: confirms that the event was added
+    // Confirms that the event was added
     Alert.alert(
       'Event added',
       `${testEvent.eventType} was saved.`
@@ -132,24 +160,29 @@ export default function TestingScreen() {
           placeholderTextColor={colors.textSecondary}
         />
 
+        {/* ADDED: Easier date input */}
         <Text style={styles.label}>
-          Timestamp
+          Event Date
         </Text>
 
         <TextInput
           style={styles.input}
-          value={timestamp}
-          onChangeText={setTimestamp}
-          placeholder="Example: 2026-11-19T12:00:00.000Z"
+          value={eventDate}
+          onChangeText={setEventDate}
+          placeholder="Example: 2026-11-20"
           placeholderTextColor={colors.textSecondary}
         />
 
+        {/* ADDED: Easier time input */}
+        <Text style={styles.label}>
+          Event Time
+        </Text>
+
         <TextInput
           style={styles.input}
-          value={batteryLevel}
-          onChangeText={setBatteryLevel}
-          keyboardType="numeric"
-          placeholder="Example: 74"
+          value={eventTime}
+          onChangeText={setEventTime}
+          placeholder="Example: 15:30"
           placeholderTextColor={colors.textSecondary}
         />
 

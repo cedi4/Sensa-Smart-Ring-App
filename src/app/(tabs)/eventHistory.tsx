@@ -4,53 +4,75 @@ import TimeRow from '@/components/TimeRow';
 import { useRingData } from '@/context/RingDataContext';
 import { colors, globalStyles } from '@/styles/global';
 import { Link } from 'expo-router';
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 export default function EventHistory() {
   const { events } = useRingData();
 
-  // Display only the five most recent events
+  // Displays only the five most recent events
   const recentEvents = events.slice(0, 5);
+
+  // ADDED: Count events based on the time they occurred
+  const periodCounts = {
+    morning: 0,
+    afternoon: 0,
+    evening: 0,
+    night: 0,
+  };
+
+  events.forEach((event) => {
+    const hour = new Date(event.timestamp).getHours();
+
+    if (hour >= 0 && hour < 12) {
+      periodCounts.morning += 1;
+    } else if (hour >= 12 && hour < 17) {
+      periodCounts.afternoon += 1;
+    } else if (hour >= 17 && hour < 20) {
+      periodCounts.evening += 1;
+    } else {
+      periodCounts.night += 1;
+    }
+  });
+
+  // ADDED: Count all events in the four time periods
+  const totalPeriodEvents =
+    periodCounts.morning +
+    periodCounts.afternoon +
+    periodCounts.evening +
+    periodCounts.night;
+
+  // ADDED: Convert each time-period count into a percentage
+  const getPeriodPercentage = (count: number) => {
+    if (totalPeriodEvents === 0) {
+      return 0;
+    }
+
+    return Math.round(
+      (count / totalPeriodEvents) * 100
+    );
+  };
 
   return (
     <ScrollView style={globalStyles.container}>
-      <Text style={globalStyles.title}>
-        History
-      </Text>
+      <Text style={globalStyles.title}>History</Text>
 
-      {/* Day / Week / Month selector */}
+      {/* Day / Week / Month */}
       <View style={styles.segment}>
-        <Text style={styles.segmentText}>
-          Day
-        </Text>
-
-        <Text
-          style={[
-            styles.segmentText,
-            styles.selected,
-          ]}
-        >
+        <Text style={styles.segmentText}>Day</Text>
+        <Text style={[styles.segmentText, styles.selected]}>
           Week
         </Text>
-
-        <Text style={styles.segmentText}>
-          Month
-        </Text>
+        <Text style={styles.segmentText}>Month</Text>
       </View>
 
-      {/* Detected behaviors chart */}
+      {/* Number of detected behaviors */}
       <View style={styles.box}>
         <Text style={styles.boxTitle}>
           Detected Behaviors
         </Text>
 
         <Text style={styles.boxSub}>
-          For the week
+          (for the week)
         </Text>
 
         <View style={styles.chart}>
@@ -74,42 +96,65 @@ export default function EventHistory() {
         </View>
       </View>
 
-      {/* High-risk time periods */}
+      {/* ADDED: High Risk Periods now use real event timestamps */}
       <View style={styles.box}>
         <Text style={styles.boxTitle}>
           High Risk Periods
         </Text>
 
-        <TimeRow
-          label="Morning"
-          range="12:00am - 11:59am"
-          percent={20}
-        />
+        {totalPeriodEvents === 0 ? (
+          <Text style={styles.emptyText}>
+            No events recorded yet.
+          </Text>
+        ) : (
+          <>
+            <TimeRow
+              label="Morning"
+              range="12:00am - 11:59am"
+              percent={getPeriodPercentage(
+                periodCounts.morning
+              )}
+            />
 
-        <TimeRow
-          label="Afternoon"
-          range="12:00pm - 5:00pm"
-          percent={55}
-        />
+            <TimeRow
+              label="Afternoon"
+              range="12:00pm - 4:59pm"
+              percent={getPeriodPercentage(
+                periodCounts.afternoon
+              )}
+            />
 
-        <TimeRow
-          label="Evening"
-          range="5:00pm - 8:00pm"
-          percent={40}
-        />
+            <TimeRow
+              label="Evening"
+              range="5:00pm - 7:59pm"
+              percent={getPeriodPercentage(
+                periodCounts.evening
+              )}
+            />
 
-        <TimeRow
-          label="Night"
-          range="8:00pm - 12:00am"
-          percent={10}
-        />
+            <TimeRow
+              label="Night"
+              range="8:00pm - 11:59pm"
+              percent={getPeriodPercentage(
+                periodCounts.night
+              )}
+            />
+          </>
+        )}
       </View>
 
-      {/* Five most recent events */}
+      {/* Displays only the five most recent events */}
       <View style={styles.box}>
-        <Text style={styles.boxTitle}>
-          Recent Events
-        </Text>
+        <View style={styles.recentHeader}>
+          <Text
+            style={[
+              styles.boxTitle,
+              styles.recentTitle,
+            ]}
+          >
+            Recent Events
+          </Text>
+        </View>
 
         {recentEvents.length === 0 ? (
           <Text style={styles.emptyText}>
@@ -133,15 +178,13 @@ export default function EventHistory() {
           ))
         )}
 
-        {/* Opens the full event list screen */}
-        <View style={styles.seeMoreContainer}>
-          <Link
-            href="/listOfEventsScreen"
-            style={styles.seeMore}
-          >
-            See More
-          </Link>
-        </View>
+        {/* Link appears below the event rows */}
+        <Link
+          href="/listOfEventsScreen"
+          style={styles.seeMore}
+        >
+          See More
+        </Link>
       </View>
     </ScrollView>
   );
@@ -216,20 +259,59 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
 
+  input: {
+    backgroundColor: colors.surface,
+    color: colors.text,
+    padding: 16,
+    borderRadius: 10,
+    fontSize: 16,
+    marginTop: 16,
+  },
+
+  row: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+
+  rowInput: {
+    flex: 1,
+  },
+
+  button: {
+    backgroundColor: colors.primary,
+    padding: 16,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginTop: 24,
+  },
+
+  buttonText: {
+    color: colors.background,
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+
+  recentHeader: {
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 14,
+  },
+
+  seeMore: {
+    color: colors.primary,
+    fontSize: 14,
+    textAlign: 'center',
+    fontWeight: 'bold',
+  },
+
   emptyText: {
     color: colors.textSecondary,
     textAlign: 'center',
     paddingVertical: 12,
   },
 
-  seeMoreContainer: {
-    alignItems: 'center',
-    marginTop: 8,
-  },
-
-  seeMore: {
-    color: colors.primary,
-    fontSize: 14,
-    fontWeight: 'bold',
+  recentTitle: {
+    textAlign: 'left',
+    marginBottom: 0,
   },
 });
